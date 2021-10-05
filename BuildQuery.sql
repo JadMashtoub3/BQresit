@@ -4,20 +4,21 @@
 Organisation(OrgID, OrganisationName)
 PK (OrgID)
 
-Client(ClientID, Name, Phone)
+Client(ClientID, Name, Phone, OrgID)
 PK (ClientID)
+FK (OrgID) REFERENCES ORGANISATION
 
 MenuItem(ItemID, Description, ServesPerUnit, UnitPrice)
 PK (ItemID)
 
-Order(ClientID, DateTimePlaced, DeliveryAddress)
-PK (ClientID, DateTimePlaced)
-FK (ClientID) REFERENCES Client(ClientID)
+Order(ClientID, OrderDate, DeliveryAddress)
+PK (ClientID, OrderDate)
+FK (ClientID) REFERENCES Client
 
-OrderLine(ItemId, ClientID, DateTimePlaced, Qty)
-PK (ItemID, ClientID, DateTimePlaced)
-FK (ClientID, DateTimePlaced) references Order(ClientID, DateTimePlaced)
-FK (ItemID) REFERENCES Item(ItemID)
+OrderLine(ItemId, ClientID, OrderDate, Qty)
+PK (ItemID, ClientID, OrderDate)
+FK (ClientID, OrderDate) REFERENCES Order
+FK (ItemID) REFERENCES MenuItem
 */
 USE MASTER
 GO
@@ -151,4 +152,83 @@ Select * from MenuItem
 select * from [Order]
 select * from OrderLine
 
+
+--TASK 4 
+
+--QUERY 1
+SELECT Organisation.OrganisationName, 
+        Orderline.ClientID,
+        Orderline.OrderDate,
+        [Order].DeliveryAddress,
+        MenuItem.[Description],
+        OrderLine.QTY
+        
+FROM    (MenuItem INNER JOIN 
+        (OrderLine INNER JOIN
+        ([Order]INNER JOIN
+        (Client INNER JOIN Organisation 
+ON Client.OrgID = Organisation.OrgID) 
+ON [Order].ClientID = Client.ClientID) 
+ON Concat(OrderLine.OrderDate, OrderLine.ClientID) = Concat([Order].OrderDate, [Order].ClientID)) 
+ON MenuItem.ItemID = OrderLine.ItemId)
+
+--Query 2
+SELECT OG.OrgID, M.Description, SUM(QTY) AS 'Total Quantity Ordered'
+FROM MenuItem M
+INNER JOIN OrderLine OL ON OL.ITEMID = M.ItemID
+INNER JOIN Client C ON OL.ClientID = C.ClientID
+INNER JOIN Organisation OG ON C.OrgID = OG.OrgID
+GROUP BY OG.OrgID, M.Description
+ORDER BY OrgId ASC
+
+
+--Query 3
+SELECT OL.ItemID, OL.ClientID, OL.OrderDate, OL.Qty , M.UnitPrice, M.Description 
+from OrderLine OL
+INNER JOIN MenuItem M ON OL.ITEMID = M.ItemID
+where (UnitPrice = (
+    SELECT MAX(UnitPrice)
+    FROM MenuItem M 
+)
+)
+go
+--TASK 5 VIEW
+Create View [Query 1 VIEW] AS 
+SELECT Organisation.OrganisationName, 
+        Orderline.ClientID,
+        Orderline.OrderDate,
+        [Order].DeliveryAddress,
+        MenuItem.[Description],
+        OrderLine.QTY
+FROM    (MenuItem INNER JOIN 
+        (OrderLine INNER JOIN
+        ([Order]INNER JOIN
+        (Client INNER JOIN Organisation 
+ON Client.OrgID = Organisation.OrgID) 
+ON [Order].ClientID = Client.ClientID) 
+ON Concat(OrderLine.OrderDate, OrderLine.ClientID) = Concat([Order].OrderDate, [Order].ClientID)) 
+ON MenuItem.ItemID = OrderLine.ItemId)
 GO
+
+select * from [Query 1 VIEW]
+
+--TESTING
+/* 
+Running the select count query will return the number of rows that are 
+supposed to be shown in the orderline, which in this case is 13.
+
+Running the select * from orderline will show you all rows that count up to 13,
+this shows that no rows are missing and all rows are being returned as expected
+*/
+select count(*) FROM OrderLine
+select * from OrderLine
+
+--q2 test
+ SELECT SUM(QTY) AS 'Total Quantity Ordered'
+    FROM MenuItem M
+    INNER JOIN OrderLine OL ON OL.ITEMID = M.ItemID
+    INNER JOIN Client C ON OL.ClientID = C.ClientID
+    INNER JOIN Organisation OG ON C.OrgID = OG.OrgID
+
+--q3 test
+ Select * from MenuItem M
