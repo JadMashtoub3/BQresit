@@ -125,7 +125,10 @@ VALUES  ('3214',	'Tropical Pizza - Large', 2, $16.00 ),
 Insert INTO [Order] (ClientID, OrderDate, DeliveryAddress)
 VALUES  ('12',	'2021/09/20',	'Room TB225 - SUT - 1 John Street, Hawthorn, 3122'),
         ('21',	'2021/09/14',	'Room ATC009 - SUT - 1 John Street, Hawthorn, 3122'),
-        ('21',	'2021/09/27',  'Room TB225 - SUT - 1 John Street, Hawthorn, 3122')
+        ('21',	'2021/09/27',  'Room TB225 - SUT - 1 John Street, Hawthorn, 3122'),
+        ('15',	'2021/09/20',	'The George - 1 John Street, Hawthorn, 3122'),
+        ('18',	'2021/09/30',	'Room TB225 - SUT - 1 John Street, Hawthorn, 3122')
+
 
 INSERT INTO OrderLine (ITEMID, CLIENTID, ORDERDATE, QTY) VALUES
         (3216, 12, '2021/9/20', 2),
@@ -136,7 +139,11 @@ INSERT INTO OrderLine (ITEMID, CLIENTID, ORDERDATE, QTY) VALUES
         (4327, 21, '2021/9/14', 2),
         (3216, 21, '2021/9/27', 1),
         (4327, 21, '2021/9/27', 1),
-        (3218, 21, '2021/9/27', 2)
+        (3218, 21, '2021/9/27', 2),
+        (3216, 15, '2021/9/20', 2),
+        (4326, 15, '2021/9/20', 1),
+        (3216, 18, '2021/9/30', 1),
+        (4327, 18, '2021/9/30', 1);
 
         select * from Organisation
 Select * from Client
@@ -144,5 +151,4 @@ Select * from MenuItem
 select * from [Order]
 select * from OrderLine
 
---TASK 4
 GO
