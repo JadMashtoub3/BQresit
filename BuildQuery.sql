@@ -37,23 +37,22 @@ GO
 
 USE BuildQuery
 
+IF OBJECT_ID('OrderLine', 'U') IS NOT NULL
+DROP TABLE OrderLine
+GO
+IF OBJECT_ID('MenuItem', 'U') IS NOT NULL
+DROP TABLE MenuItem
 
-IF OBJECT_ID('Organisation', 'U') IS NOT NULL
-DROP TABLE Organisation
+IF OBJECT_ID('Order', 'U') IS NOT NULL
+DROP TABLE [Order]
+GO
 GO
 IF OBJECT_ID('Client', 'U') IS NOT NULL
 DROP TABLE Client
 GO
-IF OBJECT_ID('MenuItem', 'U') IS NOT NULL
-DROP TABLE MenuItem
+IF OBJECT_ID('Organisation', 'U') IS NOT NULL
+DROP TABLE Organisation
 GO
-IF OBJECT_ID('Order', 'U') IS NOT NULL
-DROP TABLE [Order]
-GO
-IF OBJECT_ID('OrderLine', 'U') IS NOT NULL
-DROP TABLE OrderLine
-GO
-
 CREATE TABLE Organisation
 (
     OrgId [NVARCHAR] (4) PRIMARY KEY,
@@ -95,8 +94,7 @@ CREATE TABLE OrderLine
     OrderDate DATE,
     Qty INT NOT NULL,
     PRIMARY KEY(ItemID, ClientID, OrderDate),
-    CONSTRAINT FK_ClientID FOREIGN KEY (ClientID, OrderDate)
-    REFERENCES [Order] (ClientID, OrderDate),
+    FOREIGN KEY (ClientID, OrderDate) References [ORDER],
     CONSTRAINT check_Qty CHECK (Qty > 0)
 );
 
@@ -105,4 +103,46 @@ Select * from Client
 Select * from MenuItem
 select * from [Order]
 select * from OrderLine
+
+Insert INTO Organisation (OrgId, OrganisationName)
+VALUES ('DODG',	'Dod & Gy Widget Importers'),
+       ('SWUT',	'Swinburne University of Technology');
+
+Insert INTO Client (ClientID, Name, Phone, OrgID)
+VALUES ('12',	'James Hallinan',	'(03)5555-1234',	'SWUT'),
+        ('15',	'Any Nguyen',	'(03)5555-2345',	'DODG'),
+        ('18',	'Karen Mok',	'(03)5555-3456',	'SWUT'),
+        ('21',	'Tim Baird',	'(03)5555-4567',	'DODG');
+
+Insert INTO MenuItem (ItemID, [Description], ServesPerUnit, UnitPrice)
+VALUES  ('3214',	'Tropical Pizza - Large', 2, $16.00 ),
+        ('3216',	'Tropical Pizza - Small',	1,	 $12.00), 
+        ('3218',	'Tropical Pizza - Family',	4,	 $23.00), 
+        ('4325',	'Can - Coke Zero',	1,	 $2.50), 
+        ('4326',	'Can - Lemonade',	1,	 $2.50), 
+        ('4327',	'Can - Harden Up',	1,	 $7.50)
+
+Insert INTO [Order] (ClientID, OrderDate, DeliveryAddress)
+VALUES  ('12',	'2021/09/20',	'Room TB225 - SUT - 1 John Street, Hawthorn, 3122'),
+        ('21',	'2021/09/14',	'Room ATC009 - SUT - 1 John Street, Hawthorn, 3122'),
+        ('21',	'2021/09/27',  'Room TB225 - SUT - 1 John Street, Hawthorn, 3122')
+
+INSERT INTO OrderLine (ITEMID, CLIENTID, ORDERDATE, QTY) VALUES
+        (3216, 12, '2021/9/20', 2),
+        (4326, 12, '2021/9/20', 1),
+        (3218, 21, '2021/9/14', 1),
+        (3214, 21, '2021/9/14', 1),
+        (4325, 21, '2021/9/14', 4),
+        (4327, 21, '2021/9/14', 2),
+        (3216, 21, '2021/9/27', 1),
+        (4327, 21, '2021/9/27', 1),
+        (3218, 21, '2021/9/27', 2)
+
+        select * from Organisation
+Select * from Client
+Select * from MenuItem
+select * from [Order]
+select * from OrderLine
+
+--TASK 4
 GO
